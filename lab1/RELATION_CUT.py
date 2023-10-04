@@ -1,3 +1,6 @@
+from memory_profiler import memory_usage
+import time
+
 class RELATION_CUT:
 
     def __init__(self, data=None, size=None, type=None):
@@ -54,8 +57,9 @@ class RELATION_CUT:
     
     def complement(self):
         complement = {}
-        for i in range(1, self.size+1):
-            complement[i] = {j for j in range(1,  self.size+1) if j not in self.data.get(i, set())}
+        full = RELATION_CUT(size=self.size, type ='full')
+        for key, value in full.data.items():
+            complement[key] = value - self.data.get(key, set())
         return RELATION_CUT(complement)
 
     
@@ -79,17 +83,43 @@ class RELATION_CUT:
                     composition.setdefault(q_key, set()).update(p_values)
         return RELATION_CUT(composition)
 
+    def is_subset(self, other):
+        for key, values in self.data.items():
+            if key not in other.data or not values.issubset(other.data[key]):
+                return False
+        return True
 
 # P = RELATION_MATR(size=4, data=[[1, 0, 1, 0], [0, 1, 1, 1], [1, 0, 1, 1], [0, 0, 1, 1]])
 # Q = RELATION_MATR(size=4, data=[[0, 0, 1, 1], [1, 1, 1, 0], [0, 1, 1, 1], [0, 1, 1, 0]]) 
-P = RELATION_CUT({1: {1, 3}, 2: {2}, 3: {1, 2, 3, 4}, 4: {2, 3, 4}}, size=4)
-Q = RELATION_CUT({1: {2}, 2: {2, 3, 4}, 3: {1, 2, 3, 4}, 4: {1, 3}}, size=4)
-#R = RELATION_CUT({1: {4}, 2: {3, 5}, 3: {4, 5}, 4: {1}, 5: {2, 4}}, size=5)
-print('Intersection\n', str(P.intersection(Q)))
-print('\nUnion\n', str(P.union(Q)))
-print('\nDifference\n', str(P.difference(Q)))
-print('\nSymmetric difference\n', str(P.sym_diff(Q)))
-print('\nComposition\n', str(P.composition(Q)))
-print('\nComplement\n', str(P.complement()))
-print('\nConverce\n', str(P.converce()))
-print('\nDual\n', str(P.dual()))
+# P = RELATION_CUT({1: {1, 3}, 2: {2}, 3: {1, 2, 3, 4}, 4: {2, 3, 4}}, size=4)
+# Q = RELATION_CUT({1: {2}, 2: {2, 3, 4}, 3: {1, 2, 3, 4}, 4: {1, 3}}, size=4)
+
+P = RELATION_CUT({1: {2, 3}, 2: set(), 3: {2, 4}, 4: {1, 2}, 5: {1, 3}}, size=5)
+Q = RELATION_CUT({1: set(), 2: {3, 4}, 3: set(), 4: {5}, 5: {2, 3}}, size=5)
+R = RELATION_CUT({1: {4}, 2: {3, 5}, 3: {4, 5}, 4: {1}, 5: {2, 4}}, size=5)
+# print('Intersection\n', str(P.intersection(Q)))
+# print('\nUnion\n', str(P.union(Q)))
+# print('\nDifference\n', str(P.difference(Q)))
+# print('\nSymmetric difference\n', str(P.sym_diff(Q)))
+# print('\nComposition\n', str(P.composition(Q)))
+#print('\nComplement\n', str(P.complement()))
+# print('\nConverce\n', str(P.converce()))
+# print('\nDual\n', str(P.dual()))
+
+mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
+start_time = time.time()  
+
+K = P.composition(Q).difference(R.dual())
+
+end_time = time.time() 
+mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)[0]
+
+K = P.composition(Q).difference(R.dual())
+print('K = (P∘Q)\R^d\n', K.data)
+
+print(f"Memory used: {mem_usage_after - mem_usage_before} MiB")
+print(f"Time taken: {end_time - start_time} seconds")
+
+#print(str(RELATION_CUT(size=4, type='full')))
+# print(str(RELATION(size=3, type='diagonal')))
+# print(str(RELATION(size=3, type='antidiagonal')))

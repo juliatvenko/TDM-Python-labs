@@ -1,5 +1,7 @@
 import numpy as np
 import itertools
+from memory_profiler import memory_usage
+import time
 
 
 class RELATION_MATR:
@@ -81,7 +83,13 @@ class RELATION_MATR:
                 composition[x][y] = 1
         return RELATION_MATR(self.size, data=composition)
 
-
+    def is_subset(self, other):
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.data[i][j] == 1 and other.data[i][j] == 0:
+                    return False
+        return True
+ 
 # P = RELATION_MATR(size=4, data=[[1, 0, 1, 0], [0, 1, 1, 1], [1, 0, 1, 1], [0, 0, 1, 1]])
 # Q = RELATION_MATR(size=4, data=[[0, 0, 1, 1], [1, 1, 1, 0], [0, 1, 1, 1], [0, 1, 1, 0]]) 
 P = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 1], 
@@ -99,15 +107,27 @@ R = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 0],
                                 [0, 1, 0, 0, 0], 
                                 [1, 0, 1, 0, 1],
                                 [0, 1, 1, 0, 0]])
-print('Intersection\n', str(P.intersection(Q)))
-print('\nUnion\n', str(P.union(Q)))
-print('\nDifference\n', str(P.difference(Q)))
-print('\nSymmetric difference\n', str(P.sym_diff(Q)))
-print('\nComposition\n', str(P.composition(Q)))
-print('\nComplement\n', str(P.complement()))
-print('\nConverce\n', str(P.converce()))
-print('\nDual\n', str(P.dual()))
-# K = RELATION_MATR.get_difference(RELATION_MATR.get_composition(P, Q), R.get_dual())
-# print('\nK = (P∘Q)\R^d\n', K.data)
+# print('Intersection\n', str(P.intersection(Q)))
+# print('\nUnion\n', str(P.union(Q)))
+# print('\nDifference\n', str(P.difference(Q)))
+# print('\nSymmetric difference\n', str(P.sym_diff(Q)))
+# print('\nComposition\n', str(P.composition(Q)))
+# print('\nComplement\n', str(P.complement()))
+# print('\nConverce\n', str(P.converce()))
+# print('\nDual\n', str(P.dual()))
+
+mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
+start_time = time.time()  
+
+K = P.composition(Q).difference(R.dual())
+
+end_time = time.time() 
+mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)[0]
+
+K = P.composition(Q).difference(R.dual())
+print('\nK = (P∘Q)\R^d\n', K.data)
+
+print(f"Memory used: {mem_usage_after - mem_usage_before} MiB")
+print(f"Time taken: {end_time - start_time} seconds")
 # P = RELATION_MATR(size=4, type='full') 
 # print(P.data)

@@ -4,7 +4,7 @@ class RELATION(ABC):
     def __init__(self, relations=None, size=None, type=None): 
         self.size = size
         if relations is not None:
-            self.relations = relations
+            self.relations = sorted(relations)
             if size is None:
                 self.size = max(max(pair) for pair in self.relations) + 1
         else:
@@ -24,19 +24,19 @@ class RELATION(ABC):
     
     @abstractmethod
     def intersection(self, other):
-        return RELATION(sorted(self.relations.intersection(other.relations)))
+        return RELATION(self.relations.intersection(other.relations))
 
     @abstractmethod
     def union(self, other):
-        return RELATION(sorted(self.relations.union(other.relations)))
+        return RELATION(self.relations.union(other.relations))
     
     @abstractmethod
     def difference(self, other):
-        return RELATION(sorted(self.relations.difference(other.relations)))
+        return RELATION(self.relations.difference(other.relations))
     
     @abstractmethod
     def sym_diff(self, other):
-        return RELATION(sorted(self.relations.symmetric_difference(other.relations)))
+        return RELATION(self.relations.symmetric_difference(other.relations))
 
     @abstractmethod
     def complement(self):
@@ -44,15 +44,19 @@ class RELATION(ABC):
     
     @abstractmethod
     def converce(self):
-        return RELATION(sorted({(y, x) for (x, y) in self.relations}))
+        return RELATION({(y, x) for (x, y) in self.relations})
     
     @abstractmethod
     def composition(self, other):
-        return RELATION(sorted({(x, y) for x, z1 in self.relations for z2, y in other.relations if z1 == z2}))
+        return RELATION({(x, y) for x, z1 in self.relations for z2, y in other.relations if z1 == z2})
     
     @abstractmethod
     def dual(self):
         return RELATION(RELATION(self.complement().relations).relations).converce()
+    
+    @abstractmethod
+    def is_subset(self, other):
+        return RELATION(self.relations.issubset(other.relations))
 
 
 P = RELATION(relations={(0, 0), (0, 2), (1, 1), (1, 2), (1, 3), (2, 0), (2, 2), (2, 3), (3, 2), (3, 3)})
