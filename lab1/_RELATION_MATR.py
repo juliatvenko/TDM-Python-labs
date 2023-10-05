@@ -116,6 +116,10 @@ R = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 0],
 # print('\nConverce\n', str(P.converce()))
 # print('\nDual\n', str(P.dual()))
 
+print("P: \n", str(P))
+print("Q: \n", str(Q))
+print("R: \n", str(R))
+
 mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
 start_time = time.time()  
 

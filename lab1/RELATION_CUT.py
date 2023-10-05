@@ -106,6 +106,10 @@ R = RELATION_CUT({1: {4}, 2: {3, 5}, 3: {4, 5}, 4: {1}, 5: {2, 4}}, size=5)
 # print('\nConverce\n', str(P.converce()))
 # print('\nDual\n', str(P.dual()))
 
+print("P = ", str(P))
+print("Q = ", str(Q))
+print("R = ", str(R))
+
 mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
 start_time = time.time()  
 
@@ -115,7 +119,7 @@ end_time = time.time()
 mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)[0]
 
 K = P.composition(Q).difference(R.dual())
-print('K = (P∘Q)\R^d\n', K.data)
+print('\nK = (P∘Q)\R^d =', str(K))
 
 print(f"Memory used: {mem_usage_after - mem_usage_before} MiB")
 print(f"Time taken: {end_time - start_time} seconds")
