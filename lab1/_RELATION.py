@@ -128,6 +128,17 @@ class RELATION:
     def asymmetric_part(self):
         return RELATION(self.relations.difference(self.symmetric_part().relations))
     
+    def transitive_closure(self):
+        while True:
+            new_relations = set((x,w) for x,y in self.relations for q,w in self.relations if q == y)
+            
+            if not new_relations.issubset(self.relations): 
+                self.relations = self.relations.union(new_relations)
+            else:
+                break  
+            
+        return RELATION(self.relations)
+    
 #Q = RELATION(relations={(0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2)})
 # Reflexivity
 # P = RELATION(relations={(0, 0), (0, 2), (1, 1), (1, 2), (1, 3), (2, 0), (2, 2), (2, 3), (3, 2), (3, 3)})
@@ -144,7 +155,9 @@ class RELATION:
 # Tolerant 
 #P = RELATION(relations={(0, 0), (0, 2), (1, 1), (2, 0), (2, 2), (2, 3), (3, 2), (3, 3)})
 # Equivalent
-P = RELATION(relations={(0, 0), (0, 2), (0, 3), (1, 1), (2, 0), (2, 2), (2, 3), (3, 0), (3, 2), (3, 3)})
+#P = RELATION(relations={(0, 0), (0, 2), (0, 3), (1, 1), (2, 0), (2, 2), (2, 3), (3, 0), (3, 2), (3, 3)})
+# Transitive closure
+P = RELATION(relations={(1,2), (2,3)})
 
 # print('Intersection\n', P.intersection(Q))
 # print('\nUnion\n', P.union(Q))
@@ -155,17 +168,22 @@ P = RELATION(relations={(0, 0), (0, 2), (0, 3), (1, 1), (2, 0), (2, 2), (2, 3), 
 # print('\nConverce\n', str(P.converce()))
 # print('\nDual\n', str(P.dual()))
 
-print('\nIs P reflexive\n', P.is_reflexive())
-print('\nIs P antireflexive\n', P.is_antireflexive())
-print('\nIs P symmetric\n', P.is_symmetric())
-print('\nIs P asymmetric\n', P.is_asymmetric())
-print('\nIs P transitive\n', P.is_transitive())
-print('\nIs P connected\n', P.is_connected())
-print('\nIs P tolerant\n', P.is_tolerant())
-print('\nIs P equivalent\n', P.is_equivalent())
+# print('\nIs P reflexive\n', P.is_reflexive())
+# print('\nIs P antireflexive\n', P.is_antireflexive())
+# print('\nIs P symmetric\n', P.is_symmetric())
+# print('\nIs P asymmetric\n', P.is_asymmetric())
+# print('\nIs P transitive\n', P.is_transitive())
+# print('\nIs P connected\n', P.is_connected())
+# print('\nIs P tolerant\n', P.is_tolerant())
+# print('\nIs P equivalent\n', P.is_equivalent())
 
-print('\nP symmetric part\n', P.symmetric_part())
-print('\nP asymmetric part\n', P.asymmetric_part())
+# print('\nP symmetric part\n', P.symmetric_part())
+# print('\nP asymmetric part\n', P.asymmetric_part())
+# print('\nP transitive closure\n', P.transitive_closure())
+if not P.is_transitive():
+    P_transitive_closure = P.transitive_closure()
+    print('\nP transitive closure\n', P_transitive_closure)
+    print('\nIs P transitive closure transitive \n', P_transitive_closure.is_transitive())
 # print(str(RELATION(size=3, type='full')))
 # print(str(RELATION(size=3, type='diagonal')))
 # print(str(RELATION(size=3, type='antidiagonal')))
