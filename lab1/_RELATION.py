@@ -122,12 +122,15 @@ class RELATION:
         return (self.is_reflexive()) and (self.is_asymmetric()) \
             and (self.is_transitive()) and (self.is_connected()) 
     
+    @abstractmethod    
     def symmetric_part(self):
         return RELATION(self.relations.intersection(self.converce().relations))
-
+    
+    @abstractmethod
     def asymmetric_part(self):
         return RELATION(self.relations.difference(self.symmetric_part().relations))
     
+    @abstractmethod    
     def transitive_closure(self):
         while True:
             new_relations = set((x,w) for x,y in self.relations for q,w in self.relations if q == y)
@@ -138,6 +141,22 @@ class RELATION:
                 break  
             
         return RELATION(self.relations)
+    
+    @abstractmethod    
+    def reachability(self, start):
+        reachable = set()
+        stack = [start]
+        while stack:
+            current = stack.pop()
+            if current not in reachable:
+                reachable.add(current)
+                stack.extend(b for a, b in self.relations if a == current)
+        return reachable
+    
+    @abstractmethod     
+    def is_mutually_reachable(self, a, b):
+        return a in self.reachability(b) and b in self.reachability(a)
+    
     
 #Q = RELATION(relations={(0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2)})
 # Reflexivity
@@ -180,10 +199,12 @@ P = RELATION(relations={(1,2), (2,3)})
 # print('\nP symmetric part\n', P.symmetric_part())
 # print('\nP asymmetric part\n', P.asymmetric_part())
 # print('\nP transitive closure\n', P.transitive_closure())
-if not P.is_transitive():
-    P_transitive_closure = P.transitive_closure()
-    print('\nP transitive closure\n', P_transitive_closure)
-    print('\nIs P transitive closure transitive \n', P_transitive_closure.is_transitive())
+# if not P.is_transitive():
+#     P_transitive_closure = P.transitive_closure()
+#     print('\nP transitive closure\n', P_transitive_closure)
+#     print('\nIs P transitive closure transitive \n', P_transitive_closure.is_transitive())
+print('\nP reachable nodes\n', P.reachability(2))
+
 # print(str(RELATION(size=3, type='full')))
 # print(str(RELATION(size=3, type='diagonal')))
 # print(str(RELATION(size=3, type='antidiagonal')))
