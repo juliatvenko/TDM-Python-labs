@@ -88,6 +88,84 @@ class RELATION_CUT:
             if key not in other.data or not values.issubset(other.data[key]):
                 return False
         return True
+    
+    def is_reflexive(self):
+        return RELATION_CUT(size=self.size, type='diagonal').is_subset(self)
+    
+    def is_antireflexive(self):
+        return self.is_subset(RELATION_CUT(size=self.size, type='antidiagonal'))
+    
+    def is_symmetric(self):
+        return self.is_subset(self.converce())
+
+    def is_asymmetric(self):
+        return self.intersection(self.converce()).data == set()
+    
+    def is_antysymmetric(self):
+        return self.intersection(self.converce()).is_subset(\
+            RELATION_CUT(size=self.size, type='diagonal'))
+
+    def is_transitive(self):
+        return self.composition(self).is_subset(self)
+
+    def is_connected(self):
+        return self.union(self.converce()).difference(RELATION_CUT(size=self.size, type='diagonal')).data \
+              == RELATION_CUT(size=self.size, type='antidiagonal').data
+    
+
+    def check_properties(self):
+        return {
+            'Reflexive': self.is_reflexive(),
+            'Antireflexive': self.is_antireflexive(),
+            'Symmetric': self.is_symmetric(),
+            'Asymmetric': self.is_asymmetric(),
+            'Antisymmetric': self.is_antysymmetric(),
+            'Transitive': self.is_transitive(),
+            'Acyclic': self.is_acyclic(),
+            'Connected': self.is_connected()
+        }
+    
+    def is_tolerant(self):
+        return (self.is_reflexive()) and (self.is_symmetric())
+    
+    def is_equivalent(self):
+        return (self.is_reflexive()) and (self.is_symmetric()) and (self.is_transitive())
+    
+    def is_quasiorder(self):
+        return (self.is_reflexive()) and (self.is_transitive())
+    
+    def is_order(self):
+        return (self.is_reflexive()) and (self.is_antysymmetric()) and (self.is_transitive())
+    
+    def is_strictorder(self):
+        return (self.is_asymmetric()) and (self.is_transitive())
+    
+    def is_linearorder(self):
+        return (self.is_reflexive()) and (self.is_antysymmetric()) \
+            and (self.is_transitive()) and (self.is_connected()) 
+    
+    def is_strictlinearorder(self):
+        return (self.is_reflexive()) and (self.is_antysymmetric()) \
+            and (self.is_transitive()) and (self.is_connected()) and (self.is_asymmetric()) 
+    
+    def symmetric_part(self):
+        return RELATION_CUT(self.relations.intersection(self.converce().data))
+    
+ 
+    def asymmetric_part(self):
+        return RELATION_CUT(self.relations.difference(self.symmetric_part().data))
+    
+
+    def check_type(self):
+        return {
+            'Tolerant': self.is_tolerant(),
+            'Equivalent': self.is_equivalent(),
+            'Quasi order': self.is_quasiorder(),
+            'Order': self.is_order(),
+            'Strict order': self.is_strictorder(),
+            'Linear order': self.is_linearorder(),
+            'Strict linear order': self.is_strictlinearorder()
+        }
 
 # P = RELATION_MATR(size=4, data=[[1, 0, 1, 0], [0, 1, 1, 1], [1, 0, 1, 1], [0, 0, 1, 1]])
 # Q = RELATION_MATR(size=4, data=[[0, 0, 1, 1], [1, 1, 1, 0], [0, 1, 1, 1], [0, 1, 1, 0]]) 
