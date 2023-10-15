@@ -1,7 +1,8 @@
-import numpy as np
-import itertools
 from memory_profiler import memory_usage
 import time
+import numpy as np
+import itertools
+import networkx as nx
 
 
 class RELATION_MATR:
@@ -100,7 +101,7 @@ class RELATION_MATR:
         return self.is_subset(self.converce())
 
     def is_asymmetric(self):
-        return self.intersection(self.converce()).data == set()
+        return np.array_equal(self.intersection(self.converce()).data, RELATION_MATR(size=self.size, type='empty').data)
     
     def is_antysymmetric(self):
         return self.intersection(self.converce()).is_subset(\
@@ -110,8 +111,8 @@ class RELATION_MATR:
         return self.composition(self).is_subset(self)
 
     def is_connected(self):
-        return self.union(self.converce()).difference(RELATION_MATR(size=self.size, type='diagonal')).data \
-              == RELATION_MATR(size=self.size, type='antidiagonal').data
+        return np.array_equal(self.union(self.converce()).difference(RELATION_MATR(size=self.size, type='diagonal')).data, \
+              RELATION_MATR(size=self.size, type='antidiagonal').data)
     
 
     def check_properties(self):
@@ -150,11 +151,11 @@ class RELATION_MATR:
             and (self.is_transitive()) and (self.is_connected()) and (self.is_asymmetric()) 
     
     def symmetric_part(self):
-        return RELATION_MATR(self.relations.intersection(self.converce().data))
+        return RELATION_MATR(self.size, self.intersection(RELATION_MATR(self.size, self.converce().data)).data)
     
  
     def asymmetric_part(self):
-        return RELATION_MATR(self.relations.difference(self.symmetric_part().data))
+        return RELATION_MATR(self.size, self.difference(RELATION_MATR(self.size, self.symmetric_part().data)).data)
     
 
     def check_type(self):
@@ -167,9 +168,98 @@ class RELATION_MATR:
             'Linear order': self.is_linearorder(),
             'Strict linear order': self.is_strictlinearorder()
         }
+    
+    def is_acyclic(self):
+        return nx.is_directed_acyclic_graph(nx.DiGraph(self.data))
+
+    def transitive_closure(self):
+        closure = self.data
+        for k, i, j in itertools.product(range(self.size), range(self.size), range(self.size)):
+            closure[i][j] = closure[i][j] or (closure[i][k] and closure[k][j])
+        return RELATION_MATR(self.size, closure)
+
+
+    def reachability(self, start):
+        return set(nx.single_source_shortest_path_length(self.graph, start).keys())
+
+    def is_mutually_reachable(self, a, b):
+        return (b in self.reachability(a)) and (a in self.reachability(b))
+    
+    def get_equivalence_classes(self):
+        equivalence_classes = []
+        visited = set()
+
+        P_trans_sym = P.transitive_closure().symmetric_part().data
+
+        for i in range(self.size):
+            if i not in visited:
+                eq_class = {i}
+                for j in range(self.size):
+                    if P_trans_sym[i][j] and P_trans_sym[j][i]:
+                        eq_class.add(j)
+                        visited.add(j)
+                equivalence_classes.append(eq_class)
+        return equivalence_classes
+    
+    def factorized(self):
+        equivalence_classes = self.get_equivalence_classes()
+        PD = [[0] * len(equivalence_classes) for _ in range(len(equivalence_classes))]
+        
+        for i, class_i in enumerate(equivalence_classes):
+            for j, class_j in enumerate(equivalence_classes):
+                for x in class_i:
+                    for y in class_j:
+                        if self.data[x][y] == 1:
+                            PD[i][j] = 1
+                            break  
+                    if PD[i][j] == 1:
+                        break  
+        return RELATION_MATR(len(equivalence_classes), PD)
  
-# P = RELATION_MATR(size=4, data=[[1, 0, 1, 0], [0, 1, 1, 1], [1, 0, 1, 1], [0, 0, 1, 1]])
-# Q = RELATION_MATR(size=4, data=[[0, 0, 1, 1], [1, 1, 1, 0], [0, 1, 1, 1], [0, 1, 1, 0]]) 
+#######################################LAB1###########################################
+# P = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 1], 
+#                                 [1, 0, 1, 1, 0], 
+#                                 [1, 0, 0, 0, 1], 
+#                                 [0, 0, 1, 0, 0],
+#                                 [0, 0, 0, 0, 0]])
+# Q = RELATION_MATR(size=5, data=[[0, 0, 0, 0, 0], 
+#                                 [0, 0, 0, 0, 1], 
+#                                 [0, 1, 0, 0, 1], 
+#                                 [0, 1, 0, 0, 0],
+#                                 [0, 0, 0, 1, 0]])
+# R = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 0], 
+#                                 [0, 0, 0, 0, 1], 
+#                                 [0, 1, 0, 0, 0], 
+#                                 [1, 0, 1, 0, 1],
+#                                 [0, 1, 1, 0, 0]])
+# print('Intersection\n', str(P.intersection(Q)))
+# print('\nUnion\n', str(P.union(Q)))
+# print('\nDifference\n', str(P.difference(Q)))
+# print('\nSymmetric difference\n', str(P.sym_diff(Q)))
+# print('\nComposition\n', str(P.composition(Q)))
+# print('\nComplement\n', str(P.complement()))
+# print('\nConverce\n', str(P.converce()))
+# print('\nDual\n', str(P.dual()))
+
+# print("P: \n", str(P))
+# print("Q: \n", str(Q))
+# print("R: \n", str(R))
+
+# mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
+# start_time = time.time()  
+
+# K = P.composition(Q).difference(R.dual())
+
+# end_time = time.time() 
+# mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)[0]
+
+# K = P.composition(Q).difference(R.dual())
+# print('\nK = (P∘Q)\R^d\n', K.data)
+
+# print(f"Memory used: {mem_usage_after - mem_usage_before} MiB")
+# print(f"Time taken: {end_time - start_time} seconds")
+
+#######################################LAB2###########################################
 P = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 1], 
                                 [1, 0, 1, 1, 0], 
                                 [1, 0, 0, 0, 1], 
@@ -180,36 +270,15 @@ Q = RELATION_MATR(size=5, data=[[0, 0, 0, 0, 0],
                                 [0, 1, 0, 0, 1], 
                                 [0, 1, 0, 0, 0],
                                 [0, 0, 0, 1, 0]])
-R = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 0], 
-                                [0, 0, 0, 0, 1], 
-                                [0, 1, 0, 0, 0], 
-                                [1, 0, 1, 0, 1],
-                                [0, 1, 1, 0, 0]])
-# print('Intersection\n', str(P.intersection(Q)))
-# print('\nUnion\n', str(P.union(Q)))
-# print('\nDifference\n', str(P.difference(Q)))
-# print('\nSymmetric difference\n', str(P.sym_diff(Q)))
-# print('\nComposition\n', str(P.composition(Q)))
-# print('\nComplement\n', str(P.complement()))
-# print('\nConverce\n', str(P.converce()))
-# print('\nDual\n', str(P.dual()))
 
-print("P: \n", str(P))
-print("Q: \n", str(Q))
-print("R: \n", str(R))
+print('Is Q transitive:', Q.is_transitive())
+if not Q.is_transitive():
+    print('Q transitive closure\n'+str(Q.transitive_closure()))
+    print('Is Q transitive closure transitive:', Q.transitive_closure().is_transitive())
 
-mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
-start_time = time.time()  
+print('\nP factorized\n', P.factorized())
 
-K = P.composition(Q).difference(R.dual())
+print('\nP factorized properties\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_properties().items()))
+print('\nP factorized type\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_type().items()))
 
-end_time = time.time() 
-mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)[0]
 
-K = P.composition(Q).difference(R.dual())
-print('\nK = (P∘Q)\R^d\n', K.data)
-
-print(f"Memory used: {mem_usage_after - mem_usage_before} MiB")
-print(f"Time taken: {end_time - start_time} seconds")
-# P = RELATION_MATR(size=4, type='full') 
-# print(P.data)

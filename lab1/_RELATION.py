@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
-#class RELATION(ABC):
-class RELATION:
+class RELATION(ABC):
     def __init__(self, relations=None, size=None, type=None): 
         self.size = size
         if relations is not None:
@@ -199,19 +198,19 @@ class RELATION:
     def is_mutually_reachable(self, a, b):
         return a in self.reachability(b) and b in self.reachability(a)
 
-    @abstractmethod    
-    def factorized(self):
-        elements = set(x for pair in self.relation for x in pair)
-        classes = set()
-        for a in elements:
-            if any(a in eq_class for eq_class in classes):
-                continue  
-            new_class = {a}
-            for b in elements - new_class:
-                if self.is_mutually_reachable(a, b):
-                    new_class.add(b)
-            classes.add(frozenset(new_class))
-        return classes
+    # @abstractmethod    
+    # def factorized(self):
+    #     elements = set(x for pair in self.relation for x in pair)
+    #     classes = set()
+    #     for a in elements:
+    #         if any(a in eq_class for eq_class in classes):
+    #             continue  
+    #         new_class = {a}
+    #         for b in elements - new_class:
+    #             if self.is_mutually_reachable(a, b):
+    #                 new_class.add(b)
+    #         classes.add(frozenset(new_class))
+    #     return classes
 
 #Q = RELATION(relations={(0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2)})
 # Reflexivity
