@@ -189,7 +189,7 @@ class RELATION_MATR:
         equivalence_classes = []
         visited = set()
 
-        P_trans_sym = P.transitive_closure().symmetric_part().data
+        P_trans_sym = self.transitive_closure().symmetric_part().data
 
         for i in range(self.size):
             if i not in visited:
@@ -260,25 +260,25 @@ class RELATION_MATR:
 # print(f"Time taken: {end_time - start_time} seconds")
 
 #######################################LAB2###########################################
-P = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 1], 
-                                [1, 0, 1, 1, 0], 
-                                [1, 0, 0, 0, 1], 
-                                [0, 0, 1, 0, 0],
-                                [0, 0, 0, 0, 0]])
-Q = RELATION_MATR(size=5, data=[[0, 0, 0, 0, 0], 
-                                [0, 0, 0, 0, 1], 
-                                [0, 1, 0, 0, 1], 
-                                [0, 1, 0, 0, 0],
-                                [0, 0, 0, 1, 0]])
+# P = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 1], 
+#                                 [1, 0, 1, 1, 0], 
+#                                 [1, 0, 0, 0, 1], 
+#                                 [0, 0, 1, 0, 0],
+#                                 [0, 0, 0, 0, 0]])
+# Q = RELATION_MATR(size=5, data=[[0, 0, 0, 0, 0], 
+#                                 [0, 0, 0, 0, 1], 
+#                                 [0, 1, 0, 0, 1], 
+#                                 [0, 1, 0, 0, 0],
+#                                 [0, 0, 0, 1, 0]])
 
-print('Is Q transitive:', Q.is_transitive())
-if not Q.is_transitive():
-    print('Q transitive closure\n'+str(Q.transitive_closure()))
-    print('Is Q transitive closure transitive:', Q.transitive_closure().is_transitive())
+# print('Is Q transitive:', Q.is_transitive())
+# if not Q.is_transitive():
+#     print('Q transitive closure\n'+str(Q.transitive_closure()))
+#     print('Is Q transitive closure transitive:', Q.transitive_closure().is_transitive())
 
-print('\nP factorized\n', P.factorized())
+# print('\nP factorized\n', P.factorized())
 
-print('\nP factorized properties\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_properties().items()))
-print('\nP factorized type\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_type().items()))
+# print('\nP factorized properties\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_properties().items()))
+# print('\nP factorized type\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_type().items()))
 
 
