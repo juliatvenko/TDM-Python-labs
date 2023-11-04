@@ -187,9 +187,9 @@ class RELATION_CUT:
 # P = RELATION_CUT({1: {1, 3}, 2: {2}, 3: {1, 2, 3, 4}, 4: {2, 3, 4}}, size=4)
 # Q = RELATION_CUT({1: {2}, 2: {2, 3, 4}, 3: {1, 2, 3, 4}, 4: {1, 3}}, size=4)
 
-P = RELATION_CUT({1: {2, 3}, 2: set(), 3: {2, 4}, 4: {1, 2}, 5: {1, 3}}, size=5)
-Q = RELATION_CUT({1: set(), 2: {3, 4}, 3: set(), 4: {5}, 5: {2, 3}}, size=5)
-R = RELATION_CUT({1: {4}, 2: {3, 5}, 3: {4, 5}, 4: {1}, 5: {2, 4}}, size=5)
+# P = RELATION_CUT({1: {2, 3}, 2: set(), 3: {2, 4}, 4: {1, 2}, 5: {1, 3}}, size=5)
+# Q = RELATION_CUT({1: set(), 2: {3, 4}, 3: set(), 4: {5}, 5: {2, 3}}, size=5)
+# R = RELATION_CUT({1: {4}, 2: {3, 5}, 3: {4, 5}, 4: {1}, 5: {2, 4}}, size=5)
 # print('Intersection\n', str(P.intersection(Q)))
 # print('\nUnion\n', str(P.union(Q)))
 # print('\nDifference\n', str(P.difference(Q)))
@@ -199,23 +199,23 @@ R = RELATION_CUT({1: {4}, 2: {3, 5}, 3: {4, 5}, 4: {1}, 5: {2, 4}}, size=5)
 # print('\nConverce\n', str(P.converce()))
 # print('\nDual\n', str(P.dual()))
 
-print("P = ", str(P))
-print("Q = ", str(Q))
-print("R = ", str(R))
+# print("P = ", str(P))
+# print("Q = ", str(Q))
+# print("R = ", str(R))
 
-mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
-start_time = time.time()  
+# mem_usage_before = memory_usage(-1, interval=0.1, timeout=1)[0]
+# start_time = time.time()  
 
-K = P.composition(Q).difference(R.dual())
+# K = P.composition(Q).difference(R.dual())
 
-end_time = time.time() 
-mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)[0]
+# end_time = time.time() 
+# mem_usage_after = memory_usage(-1, interval=0.1, timeout=1)[0]
 
-K = P.composition(Q).difference(R.dual())
-print('\nK = (P∘Q)\R^d =', str(K))
+# K = P.composition(Q).difference(R.dual())
+# print('\nK = (P∘Q)\R^d =', str(K))
 
-print(f"Memory used: {mem_usage_after - mem_usage_before} MiB")
-print(f"Time taken: {end_time - start_time} seconds")
+# print(f"Memory used: {mem_usage_after - mem_usage_before} MiB")
+# print(f"Time taken: {end_time - start_time} seconds")
 
 #print(str(RELATION_CUT(size=4, type='full')))
 # print(str(RELATION(size=3, type='diagonal')))

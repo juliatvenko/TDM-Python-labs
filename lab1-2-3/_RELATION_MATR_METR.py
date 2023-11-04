@@ -98,47 +98,111 @@ class RELATION_MATR_METR(RELATION_MATR):
             if not K:  
                 continue
             if self.is_additive():
-                composition[i][j] = sum(self.data[i][k] + other.data[k][j] for k in K) / len(K)
+                composition[i][j] = round(sum(self.data[i][k] + other.data[k][j] for k in K) / len(K), 2)
             elif self.is_multiplicative():
                 composition[i][j] = round((np.prod([self.data[i][k] * other.data[k][j] for k in K]))**(1/len(K)), 2)
         return RELATION_MATR_METR(data=composition)
+    
+    def get_distance(self, other):
+        if not (self.is_consistent() and other.is_consistent()):
+            raise TypeError('Matixes not consistent')
+        return np.abs(self.data - other.data).sum()/2
 
-#################################EXAMPLE###################################################    
-# Additive metrized relations
-P = RELATION_MATR_METR(data=np.array([[0, 0, 0, 5, 0],
-                                      [2, 0, 0, 7, 1],
-                                      [4, 2, 0, 9, 3],
-                                      [0, 0, 0, 0, 0],
-                                      [1, 0, 0, 6, 0]]))
 
-Q = RELATION_MATR_METR(data=np.array([[0, 0, 0, 0, 0],
-                                      [5, 0, 0, 0, 0],
-                                      [0, 0, 0, 0, 0],
-                                      [4, 0, 0, 0, 0],
-                                      [7, 2, 0, 3, 0]]))
-print('P properties\n'+P.check_properties())
-print('Q properties\n'+Q.check_properties())
-print('P and Q union\n'+ str(P.union(Q)))
-print('P and Q intersection\n'+ str(P.intersection(Q)))
-print('P and Q difference\n'+ str(P.difference(Q)))
-print('P and Q composition\n'+ str(P.composition(Q)))
+#################################EXAMPLE###############################################   
+# # Additive metrized relations
+# P = RELATION_MATR_METR(data=np.array([[0, 0, 0, 5, 0],
+#                                       [2, 0, 0, 7, 1],
+#                                       [4, 2, 0, 9, 3],
+#                                       [0, 0, 0, 0, 0],
+#                                       [1, 0, 0, 6, 0]]))
 
-# Multiplicative metrized relations
-P1 = RELATION_MATR_METR(data=np.array([[1, 3, 6, 6, 12],
-                                      [0, 1, 2, 2, 4],
-                                      [0, 0, 1, 1, 2],
-                                      [0, 0, 1, 1, 2],
-                                      [0, 0, 0, 0, 1]]))
+# Q = RELATION_MATR_METR(data=np.array([[0, 0, 0, 0, 0],
+#                                       [5, 0, 0, 0, 0],
+#                                       [0, 0, 0, 0, 0],
+#                                       [4, 0, 0, 0, 0],
+#                                       [7, 2, 0, 3, 0]]))
+# print('P properties\n'+P.check_properties())
+# print('Q properties\n'+Q.check_properties())
+# print('P and Q union\n'+ str(P.union(Q)))
+# print('P and Q intersection\n'+ str(P.intersection(Q)))
+# print('P and Q difference\n'+ str(P.difference(Q)))
+# print('P and Q composition\n'+ str(P.composition(Q)))
 
-Q1 = RELATION_MATR_METR(data= np.array([[1, 0, 0, 2, 10],
-                                       [0, 1, 0, 0, 0],
-                                       [0, 0, 1, 0, 6],
-                                       [0, 0, 0, 1, 5],
-                                       [0, 0, 0, 0, 1]])) 
+# # Multiplicative metrized relations
+# P1 = RELATION_MATR_METR(data=np.array([[1, 3, 6, 6, 12],
+#                                       [0, 1, 2, 2, 4],
+#                                       [0, 0, 1, 1, 2],
+#                                       [0, 0, 1, 1, 2],
+#                                       [0, 0, 0, 0, 1]]))
 
-print('P1 properties\n'+P1.check_properties())
-print('Q1 properties\n'+Q1.check_properties())
-print('P1 and Q1 union\n'+ str(P1.union(Q1)))
-print('P1 and Q1 intersection\n'+ str(P1.intersection(Q1)))
-print('P1 and Q1 difference\n'+ str(P1.difference(Q1)))
-print('P1 and Q1 composition\n'+ str(P1.composition(Q1))) 
+# Q1 = RELATION_MATR_METR(data= np.array([[1, 0, 0, 2, 10],
+#                                        [0, 1, 0, 0, 0],
+#                                        [0, 0, 1, 0, 6],
+#                                        [0, 0, 0, 1, 5],
+#                                        [0, 0, 0, 0, 1]])) 
+
+# print('P1 properties\n'+P1.check_properties())
+# print('Q1 properties\n'+Q1.check_properties())
+# print('P1 and Q1 union\n'+ str(P1.union(Q1)))
+# print('P1 and Q1 intersection\n'+ str(P1.intersection(Q1)))
+# print('P1 and Q1 difference\n'+ str(P1.difference(Q1)))
+# print('P1 and Q1 composition\n'+ str(P1.composition(Q1))) 
+
+#################################LAB3###############################################  
+
+# P = RELATION_MATR_METR(data=np.array([[0, 0, 0, 0, 0],
+#                                       [5, 0, 0, 0, 0],
+#                                       [0, 0, 0, 0, 0],
+#                                       [4, 0, 0, 0, 0],
+#                                       [7, 2, 0, 3, 0]]))
+
+# Q = RELATION_MATR_METR(data=np.array([[0, 0, 4, 0, 0],
+#                                       [2, 0, 6, 0, 0],
+#                                       [0, 0, 0, 0, 0],
+#                                       [3, 1, 7, 0, 0],
+#                                       [4, 2, 8, 1, 0]]))
+
+# print('P properties\n'+P.check_properties())
+# print('Q properties\n'+Q.check_properties())
+# print('P and Q union\n'+ str(P.union(Q)))
+# print('P and Q intersection\n'+ str(P.intersection(Q)))
+# print('P and Q difference\n'+ str(P.difference(Q)))
+# print('P and Q composition\n'+ str(P.composition(Q)))
+
+# P1 = RELATION_MATR_METR(data=np.array([[1, 0, 0, 0, 7],
+#                                        [0, 1, 0, 0, 0],
+#                                        [0, 0, 1, 0, 0],
+#                                        [0, 6, 0, 1, 0],
+#                                        [0, 0, 0, 0, 1]]))
+
+# Q1 = RELATION_MATR_METR(data=np.array([[1, 0, 0, 0, 0],
+#                                        [0, 1, 2, 0, 8],
+#                                        [0, 0, 1, 0, 4],
+#                                        [1, 1, 2, 1, 8],
+#                                        [0, 0, 0, 0, 1]]))
+
+# print('P1 properties\n'+P1.check_properties())
+# print('Q1 properties\n'+Q1.check_properties())
+# print('P1 and Q1 union\n'+ str(P1.union(Q1)))
+# print('P1 and Q1 intersection\n'+ str(P1.intersection(Q1)))
+# print('P1 and Q1 difference\n'+ str(P1.difference(Q1)))
+# print('P1 and Q1 composition\n'+ str(P1.composition(Q1))) 
+
+#################################LAB5############################################### 
+S = RELATION_MATR_METR(data=[[ 0,  0, 2,  1, 2],
+                             [ 0,  0, 2,  1, 2],
+                             [-2, -2, 0, -1, 0],
+                             [-1, -1, 1,  0, 1],
+                             [-2, -2, 0, -1, 0]])
+
+T = RELATION_MATR_METR(data=[[ 0, 3, 3,  1,  2],
+                             [-3, 0, 0, -2, -1],
+                             [-3, 0, 0, -2, -1],
+                             [-1, 2, 2,  0,  1],
+                             [-2, 1, 1, -1,  0]])
+print('S:\n'+str(S))
+print('T:\n'+str(T))
+print('Is S consistent:', S.is_consistent())
+print('Is T consistent:', T.is_consistent())
+print('Distance between S and T:', S.get_distance(T))

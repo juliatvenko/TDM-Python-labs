@@ -101,10 +101,10 @@ class ChoiceMechanism:
                 T[i][j] = 1    
         return T
     
-    def gurvitz_criterion_decision(self, alpha):
+    def gurvitz_criterion_decision(self):
         min_values = np.min(self.Q, axis=1)
         max_values = np.max(self.Q, axis=1)
-        gurvitz_values = alpha * min_values + (1 - alpha) * max_values
+        gurvitz_values = self.alpha * min_values + (1 - self.alpha) * max_values
         T = np.zeros((self.num_criteria, self.num_criteria), dtype=int)
         for i, j in itertools.product(range(self.num_criteria), repeat=2):
                 if gurvitz_values[i] > gurvitz_values[j]:
@@ -119,8 +119,8 @@ class ChoiceMechanism:
                     T[i][j] = 1     
         return T
     
-    def criteria_aggregation_decision(self, lambda_vector):
-        aggregate_scores = self.Q.dot(lambda_vector)
+    def criteria_aggregation_decision(self):
+        aggregate_scores = self.Q.dot(self.lambda_vector)
         T = np.zeros((self.num_alternatives, self.num_alternatives), dtype=int)
         for i, j in itertools.product(range(self.num_alternatives), repeat=2):
                 T[i][j] = int(aggregate_scores[i] >= aggregate_scores[j]) 

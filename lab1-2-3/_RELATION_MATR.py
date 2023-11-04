@@ -3,26 +3,44 @@ import time
 import numpy as np
 import itertools
 import networkx as nx
+from _RELATION import RELATION
+from RELATION_CUT import RELATION_CUT
 
+class RELATION_MATR(RELATION):
 
-class RELATION_MATR:
-
-    def __init__(self, size, data=None, type=None):
-        self.size = size
-        if type is None:
-            self.data = np.array(data, dtype=int)
-        elif data is None:
-            if type==None or type=='full':
-                self.data = np.ones((self.size, self.size), dtype=int)
-            elif type=='empty':
-                self.data = np.zeros((self.size, self.size), dtype=int)
-            elif type=='diagonal':
-                self.data = np.zeros((self.size, self.size), dtype=int)
-                np.fill_diagonal(self.data, 1)
-            elif type=='antidiagonal':
-                self.data = np.ones((self.size, self.size), dtype=int) 
-                np.fill_diagonal(self.data, 0)
+    def __init__(self, size, data=None, type=None, relation_cut_obj=None):
+        if isinstance(relation_cut_obj, RELATION_CUT):
+            self.data = np.array(RELATION_MATR.dict2matrix(relation_cut_obj.data, relation_cut_obj.size))
+            self.size = relation_cut_obj.size
+        else:
+            self.size = size
+            if type is None:
+                self.data = np.array(data, dtype=int)
+            elif data is None:
+                if type==None or type=='full':
+                    self.data = np.ones((self.size, self.size), dtype=int)
+                elif type=='empty':
+                    self.data = np.zeros((self.size, self.size), dtype=int)
+                elif type=='diagonal':
+                    self.data = np.zeros((self.size, self.size), dtype=int)
+                    np.fill_diagonal(self.data, 1)
+                elif type=='antidiagonal':
+                    self.data = np.ones((self.size, self.size), dtype=int) 
+                    np.fill_diagonal(self.data, 0)
     
+    def set2matrix(relations, size):
+        matrix = np.zeros((size, size), dtype=int)
+        for (i, j) in relations:
+            matrix[i][j] = 1
+        return matrix
+    
+    def dict2matrix(data, size):
+        matrix = np.zeros((size, size), dtype=int)
+        for col, rows in data.items():
+            for row in rows:
+                matrix[row-1][col-1] = 1
+        return matrix 
+        
     def __str__(self):
         return str(self.data)
   
@@ -215,6 +233,68 @@ class RELATION_MATR:
                     if PD[i][j] == 1:
                         break  
         return RELATION_MATR(len(equivalence_classes), PD)
+    
+    def relation_ranged(self):
+        Pm = np.zeros((self.size, self.size), dtype=int)
+        for i, j in itertools.product(range(self.size), repeat=2):
+            Pm[i][j] = self.data[i][j] - self.data[j][i]
+        return Pm
+    
+    def calculate_distance(self, other):
+        def find_equivalence_classes(matrix):
+            num_elements = matrix.shape[0]
+            classes = []
+            for i in range(num_elements):
+                if not any(i in equivalence_class for equivalence_class in classes):
+                    new_class = {j for j in range(num_elements) if matrix[i, j] == 1}
+                    classes.append(new_class)
+            return classes
+
+        def get_intersection_classes(classes1, classes2):
+            intersection = []
+            for class1 in classes1:
+                for class2 in classes2:
+                    inter = class1.intersection(class2)
+                    if inter not in intersection and inter:
+                        intersection.append(inter)
+            return intersection
+
+        def calculate_r_values(equivalence_classes, intersection_classes):
+            r_values = []
+            for eq_cls in equivalence_classes:
+                intersections = [eq_cls.intersection(inter_class) for inter_class in intersection_classes\
+                                  if eq_cls.intersection(inter_class)]
+                r_values.append(len(intersections))
+            return r_values
+
+        def calculate_max_inter_sizes(equivalence_classes, intersection_classes):
+            max_intersection_size = []
+            for eq_cls in equivalence_classes:
+                intersections = [eq_cls.intersection(inter_class) for inter_class in intersection_classes\
+                                  if eq_cls.intersection(inter_class)]
+                max_intersection_size.append(max(len(inter_class) for inter_class in intersections))
+            return max_intersection_size
+        
+        if not self.is_equivalent() and other.is_equivalent():
+            raise TypeError('Matixes not equivalent')
+        
+        eq_classes_P = find_equivalence_classes(self.data)
+        eq_classes_R = find_equivalence_classes(other.data)
+        classes_intersection = get_intersection_classes(eq_classes_P, eq_classes_R)
+        r_P = calculate_r_values(eq_classes_P, classes_intersection)
+        r_R = calculate_r_values(eq_classes_R, classes_intersection)
+        P_inter_max_sizes = calculate_max_inter_sizes(eq_classes_P, classes_intersection)
+        R_inter_max_sizes = calculate_max_inter_sizes(eq_classes_R, classes_intersection)
+
+        distance = 0
+        for i in range(len(r_P)):
+            distance += 2 * (abs(len(eq_classes_P[i]))  - abs(P_inter_max_sizes[i])) - r_P[i] + 1
+        for i in range(len(r_R)):
+            distance += 2 * (abs(len(eq_classes_R[i])) - abs(R_inter_max_sizes[i])) - r_R[i] + 1
+        return distance
+    
+    def get_distance(self, other):
+        return np.abs(self.relation_ranged() - other.relation_ranged()).sum()/2
  
 #######################################LAB1###########################################
 # P = RELATION_MATR(size=5, data=[[0, 0, 0, 1, 1], 
@@ -281,4 +361,65 @@ class RELATION_MATR:
 # print('\nP factorized properties\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_properties().items()))
 # print('\nP factorized type\n' + "\n".join(f"{prop}: {val}" for prop, val in P.factorized().check_type().items()))
 
+#######################################LAB5###########################################
+#####################################EXAMPLE##########################################
+# P1 = RELATION_MATR(size=12, data=[[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+#                                   [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+#                                   [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+#                                   [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+#                                   [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+#                                   [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+#                                   [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+#                                   [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+#                                   [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+#                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+#                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+#                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]])
 
+# P2 = RELATION_MATR(size=12, data=[[1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+#                                   [0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+#                                   [0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+#                                   [0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+#                                   [1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+#                                   [0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+#                                   [0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+#                                   [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+#                                   [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+#                                   [1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+#                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+#                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
+# print(Distance between P1 and P2:', P1.calculate_distance(P2))
+
+#####################################TASK##########################################
+R_relation_cut = RELATION_CUT(data={1: {1, 2}, 
+                                    2: {2, 5}, 
+                                    3: {3, 5}, 
+                                    4: {4}, 
+                                    5: {5}})
+R=RELATION_MATR(relation_cut_obj=R_relation_cut, size=5)
+G=RELATION_MATR(size=5, data=[[1, 0, 0, 0, 0],
+                               [0, 1, 0, 0, 0],
+                               [1, 1, 1, 1, 1],
+                               [1, 1, 0, 1, 1],
+                               [0, 0, 0, 0, 1]])
+print('R: '+str(R_relation_cut))
+print('G:\n'+str(G))
+print('Distance between G and R:', G.get_distance(R))
+
+
+Q1=RELATION_MATR(size=5, data=[[1, 0, 0, 0, 1],
+                               [0, 1, 0, 0, 0],
+                               [0, 0, 1, 1, 0],
+                               [0, 0, 1, 1, 0],
+                               [1, 0, 0, 0, 1]])
+                         
+Q2=RELATION_MATR(size=5, data=[[1, 0, 0, 0, 1],
+                               [0, 1, 0, 1, 0],
+                               [0, 0, 1, 0, 0],
+                               [0, 1, 0, 1, 0],
+                               [1, 0, 0, 0, 1]])
+print('Q1:\n'+str(Q1))
+print('Q2:\n'+str(Q2))
+print('Is Q1 equivalent:', Q1.is_equivalent())
+print('Is Q2 equivalent:', Q2.is_equivalent())
+print('Distance between Q1 and Q2:', Q1.calculate_distance(Q2))

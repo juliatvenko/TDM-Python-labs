@@ -26,67 +26,67 @@ class RELATION(ABC):
     def __str__(self):
         return "{" + "\n".join(f"({x}, {y})" for x, y in sorted(self.relations)) + "}"
     
-    @abstractmethod
+
     def intersection(self, other):
         return RELATION(self.relations.intersection(other.relations))
 
-    @abstractmethod
+
     def union(self, other):
         return RELATION(self.relations.union(other.relations))
     
-    @abstractmethod
+
     def difference(self, other):
         return RELATION(self.relations.difference(other.relations))
     
-    @abstractmethod
+
     def sym_diff(self, other):
         return RELATION(self.relations.symmetric_difference(other.relations))
 
-    @abstractmethod
+
     def complement(self):
         return RELATION(RELATION(size=self.size, type='full').relations - self.relations)
     
-    @abstractmethod
+
     def converce(self):
         return RELATION({(y, x) for (x, y) in self.relations})
     
-    @abstractmethod
+
     def composition(self, other):
         return RELATION({(x, y) for x, z1 in self.relations for z2, y in other.relations if z1 == z2})
     
-    @abstractmethod
+
     def dual(self):
         return RELATION(RELATION(self.complement().relations).relations).converce()
     
-    @abstractmethod
+
     def is_subset(self, other):
         return self.relations.issubset(other.relations)
     
-    @abstractmethod
+
     def is_reflexive(self):
         return RELATION(size=self.size, type='diagonal').is_subset(self)
     
-    @abstractmethod
+
     def is_antireflexive(self):
         return self.is_subset(RELATION(size=self.size, type='antidiagonal'))
     
-    @abstractmethod
+
     def is_symmetric(self):
         return self.is_subset(self.converce())
 
-    @abstractmethod
+
     def is_asymmetric(self):
         return self.intersection(self.converce()).relations == set()
     
-    @abstractmethod
+
     def is_antysymmetric(self):
         return self.intersection(self.converce()).is_subset(RELATION(size=self.size, type='diagonal'))
     
-    @abstractmethod
+
     def is_transitive(self):
         return self.composition(self).is_subset(self) 
     
-    @abstractmethod
+
     def is_acyclic(self):
         graph = {node: [] for pair in self.relations for node in pair}
         for a, b in self.relations:
@@ -103,12 +103,12 @@ class RELATION(ABC):
             return False
         return not any(has_cycle(node, set()) for node in graph)
 
-    @abstractmethod
+
     def is_connected(self):
         return self.union(self.converce()).difference(RELATION(size=self.size, type='diagonal')).relations \
               == RELATION(size=self.size, type='antidiagonal').relations
     
-    @abstractmethod
+
     def check_properties(self):
         return {
             'Reflexive': self.is_reflexive(),
@@ -121,45 +121,45 @@ class RELATION(ABC):
             'Connected': self.is_connected()
         }
     
-    @abstractmethod
+
     def is_tolerant(self):
         return (self.is_reflexive()) and (self.is_symmetric())
     
-    @abstractmethod
+
     def is_equivalent(self):
         return (self.is_reflexive()) and (self.is_symmetric()) and (self.is_transitive())
     
-    @abstractmethod
+ 
     def is_quasiorder(self):
         return (self.is_reflexive()) and (self.is_transitive())
     
-    @abstractmethod
+
     def is_order(self):
         return (self.is_reflexive()) and (self.is_antysymmetric()) and (self.is_transitive())
     
-    @abstractmethod
+
     def is_strictorder(self):
         return (self.is_asymmetric()) and (self.is_transitive())
     
-    @abstractmethod
+
     def is_linearorder(self):
         return (self.is_reflexive()) and (self.is_antysymmetric()) \
             and (self.is_transitive()) and (self.is_connected()) 
     
-    @abstractmethod
+
     def is_strictlinearorder(self):
         return (self.is_reflexive()) and (self.is_antysymmetric()) \
             and (self.is_transitive()) and (self.is_connected()) and (self.is_asymmetric()) 
     
-    @abstractmethod    
+
     def symmetric_part(self):
         return RELATION(self.relations.intersection(self.converce().relations))
     
-    @abstractmethod
+
     def asymmetric_part(self):
         return RELATION(self.relations.difference(self.symmetric_part().relations))
     
-    @abstractmethod
+ 
     def check_type(self):
         return {
             'Tolerant': self.is_tolerant(),
@@ -171,7 +171,7 @@ class RELATION(ABC):
             'Strict linear order': self.is_strictlinearorder()
         }
     
-    @abstractmethod    
+  
     def transitive_closure(self):
         while True:
             new_relations = set((x,w) for x,y in self.relations for q,w in self.relations if q == y)
@@ -183,7 +183,7 @@ class RELATION(ABC):
             
         return RELATION(self.relations)
     
-    @abstractmethod    
+ 
     def reachability(self, start):
         reachable = set()
         stack = [start]
@@ -194,7 +194,7 @@ class RELATION(ABC):
                 stack.extend(b for a, b in self.relations if a == current)
         return reachable
     
-    @abstractmethod     
+
     def is_mutually_reachable(self, a, b):
         return a in self.reachability(b) and b in self.reachability(a)
 
@@ -228,7 +228,7 @@ class RELATION(ABC):
 # Connected
 #P = RELATION(relations={(0,1),(0,2),(0,3),(1,0),(1,2),(1,3),(2,0),(2,1),(2,3),(3,0),(3,1),(3,2)})
 # Tolerant 
-P = RELATION(relations={(0, 0), (0, 2), (1, 1), (2, 0), (2, 2), (2, 3), (3, 2), (3, 3)})
+# P = RELATION(relations={(0, 0), (0, 2), (1, 1), (2, 0), (2, 2), (2, 3), (3, 2), (3, 3)})
 # Equivalent
 # P = RELATION(relations={(0, 0), (0, 2), (0, 3), (1, 1), (2, 0), (2, 2), (2, 3), (3, 0), (3, 2), (3, 3)})
 # Transitive closure
@@ -266,5 +266,5 @@ P = RELATION(relations={(0, 0), (0, 2), (1, 1), (2, 0), (2, 2), (2, 3), (3, 2), 
 # print(str(RELATION(size=3, type='diagonal')))
 # print(str(RELATION(size=3, type='antidiagonal')))
 
-print('P properties\n' + "\n".join(f"{prop}: {val}" for prop, val in P.check_properties().items()))
-print('P type\n' + "\n".join(f"{prop}: {val}" for prop, val in P.check_type().items()))
+# print('P properties\n' + "\n".join(f"{prop}: {val}" for prop, val in P.check_properties().items()))
+# print('P type\n' + "\n".join(f"{prop}: {val}" for prop, val in P.check_type().items()))
