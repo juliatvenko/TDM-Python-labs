@@ -27,8 +27,8 @@ def build_decision_tree_1(A:list, B:list, p=0.5):
 
 def build_decision_tree_2(A:list, B:list, P11:float, P12:float, P21:float, P22:float, Q:int, p=0.5, p1=0.75, p2=0.25):
     EV = [A*p + B*p for A, B in zip(A, B)]
-    EV_p1 = [P11*A+P21*B for A, B in zip(A, B)]
-    EV_p2 = [P12*A+P22*B for A, B in zip(A, B)]
+    EV_p1 = [P11*A+P12*B for A, B in zip(A, B)]
+    EV_p2 = [P21*A+P22*B for A, B in zip(A, B)]
 
     task2_tree = {
         'name': f'Оптимальний варіант <{max(max(EV), p1*max(EV_p1)+p2*max(EV_p2)-Q)}>',  # Root node name
